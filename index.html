@@ -600,24 +600,6 @@
     }
 
     /**
-     * Persist grid and timezone preferences to localStorage
-     */
-    function saveState() {
-      try {
-        localStorage.setItem(
-          STORAGE_KEY,
-          JSON.stringify({
-            grid: state.grid,
-            utcOffset: state.utcOffset,
-            activePreset: state.activePreset,
-          })
-        );
-      } catch (err) {
-        console.warn('Failed to save to localStorage:', err);
-      }
-    }
-
-    /**
      * Show non-blocking floating toast message
      */
     function showToast(message, type = 'info') {
@@ -712,7 +694,6 @@
 
           state.activePreset = presetKey;
           state.utcOffset = preset.utcOffset;
-          saveState();
           syncTimezoneNavUI();
           renderTimetable();
         });
@@ -726,7 +707,6 @@
         state.utcOffset = chosenOffset;
         state.activePreset = matchedPreset ? matchedPreset.id : 'custom';
 
-        saveState();
         syncTimezoneNavUI();
         renderTimetable();
       });
@@ -946,7 +926,6 @@
                 removeBtn.addEventListener('click', (e) => {
                   e.stopPropagation();
                   state.grid[dIdx][sIdx] = null;
-                  saveState();
                   renderTimetable();
                 });
               }
@@ -1022,7 +1001,6 @@
 
             if (payload.source === 'palette' && payload.raceId) {
               state.grid[dIdx][sIdx] = payload.raceId;
-              saveState();
               renderTimetable();
               showToast(`Assigned ${RACE_TYPES[payload.raceId].name} to Day ${dIdx + 1} (${slotTime.timeStr})`, 'success');
             } else if (payload.source === 'grid') {
@@ -1034,7 +1012,6 @@
               state.grid[dIdx][sIdx] = state.grid[fromD][fromS];
               state.grid[fromD][fromS] = temp;
 
-              saveState();
               renderTimetable();
               showToast(`Swapped Day ${fromD + 1} and Day ${dIdx + 1} slots`, 'info');
             }
@@ -1096,7 +1073,6 @@
         }
         state.grid = createEmptyGrid();
         state.filterType = null;
-        saveState();
         renderPalette();
         renderTimetable();
         showToast('Cleared all slots on the timetable', 'info');
