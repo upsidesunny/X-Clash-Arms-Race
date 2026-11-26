@@ -1,0 +1,1117 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>XClash Arms Race — Weekly Timetable</title>
+
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+
+  <!-- Google Fonts: Fredoka (Casual Game Display), Nunito (UI Body), JetBrains Mono (Server Timestamps) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@600;700&family=JetBrains+Mono:wght@600;700&family=Nunito:wght@600;700;800;900&display=swap" rel="stylesheet" />
+
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['Fredoka', 'Nunito', 'sans-serif'],
+            sans: ['Nunito', 'sans-serif'],
+            mono: ['JetBrains Mono', 'monospace'],
+          },
+        },
+      },
+    };
+  </script>
+
+  <style>
+    /* Base Fallback & XClash Warm Parchment Theme */
+    :root {
+      --bg-parchment: #f3e4d0;
+      --bg-ivory: #fff8ee;
+      --bg-sand: #ead5b9;
+      --border-tan: #d4b48c;
+      --text-brown: #4a2e16;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      background-color: #f3e4d0;
+      background-image:
+        radial-gradient(circle at 50% 0%, rgba(255, 224, 150, 0.55) 0%, rgba(243, 228, 208, 0) 65%),
+        repeating-linear-gradient(
+          45deg,
+          rgba(214, 184, 146, 0.14) 0px,
+          rgba(214, 184, 146, 0.14) 24px,
+          transparent 24px,
+          transparent 48px
+        );
+      color: #4a2e16;
+      font-family: 'Nunito', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+
+    /* Sunburst Golden-Peach Header Banner matching XClash UI */
+    .xclash-banner {
+      background: linear-gradient(180deg, #f39c4f 0%, #f8bc6c 55%, #fde09d 100%);
+      border-bottom: 3px solid #d4893b;
+      box-shadow: 0 4px 14px rgba(138, 86, 32, 0.18), inset 0 1px 0 rgba(255, 250, 230, 0.75);
+    }
+
+    /* Stylized XClash Title Stroke & Drop Shadow */
+    .xclash-title {
+      font-family: 'Fredoka', 'Nunito', sans-serif;
+      color: #fffdf5;
+      text-shadow:
+        0 2px 0 #9e5312,
+        -1px -1px 0 #9e5312,
+        1px -1px 0 #9e5312,
+        -1px 1px 0 #9e5312,
+        1px 1px 0 #9e5312,
+        0 4px 8px rgba(110, 52, 8, 0.35);
+    }
+
+    /* 3D Beveled Game Button */
+    .xclash-btn {
+      transition: transform 0.12s ease, box-shadow 0.12s ease, filter 0.12s ease, opacity 0.15s ease;
+    }
+    .xclash-btn:not(:disabled):active {
+      transform: translateY(2px);
+    }
+    .xclash-btn:disabled {
+      opacity: 0.55;
+      cursor: not-allowed;
+      filter: grayscale(0.25);
+    }
+
+    /* Top Nav Timezone Pill States */
+    .tz-pill {
+      transition: all 0.15s ease;
+    }
+    .tz-pill-active {
+      background: linear-gradient(180deg, #ffe27a 0%, #f4b732 100%);
+      color: #4a2c0a;
+      border-color: #b87714;
+      box-shadow: 0 2px 0 #b87714, inset 0 1px 0 rgba(255, 255, 255, 0.75);
+    }
+    .tz-pill-inactive {
+      background: #fff8ee;
+      color: #5c4024;
+      border-color: #d6bc9c;
+    }
+    .tz-pill-inactive:hover {
+      background: #faeedc;
+      border-color: #b99770;
+    }
+
+    /* Custom Scrollbar for Timetable Horizontal Overflow */
+    .timetable-scroll::-webkit-scrollbar {
+      height: 10px;
+    }
+    .timetable-scroll::-webkit-scrollbar-track {
+      background: #ead5b9;
+      border-radius: 0 0 14px 14px;
+    }
+    .timetable-scroll::-webkit-scrollbar-thumb {
+      background: #bfa07a;
+      border-radius: 9999px;
+      border: 2px solid #ead5b9;
+    }
+    .timetable-scroll::-webkit-scrollbar-thumb:hover {
+      background: #9e7e56;
+    }
+  </style>
+</head>
+<body class="min-h-screen flex flex-col antialiased selection:bg-amber-400/40 selection:text-amber-950">
+
+  <!-- Top Timezone Swapper Navigation Bar -->
+  <nav aria-label="Timezone Selector" class="sticky top-0 z-40 bg-[#4a2e16] text-[#fff8ee] border-b-2 border-[#2f1d0d] shadow-md">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-2.5 flex flex-col xl:flex-row xl:items-center xl:justify-between gap-2.5">
+      
+      <!-- Active Timezone Indicator -->
+      <div class="flex items-center gap-2 shrink-0">
+        <div class="w-7 h-7 rounded-lg bg-[#6b4726] border border-[#8c6139] flex items-center justify-center text-[#ffd86b] shadow-inner">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <circle cx="12" cy="12" r="10" />
+            <polyline points="12 6 12 12 16 14" />
+          </svg>
+        </div>
+        <div class="flex items-center gap-2">
+          <span class="text-xs sm:text-sm font-extrabold tracking-wide text-[#ffe6a3]">Time Zone:</span>
+          <span id="activeTzSummary" class="text-[11px] font-mono font-bold px-2.5 py-0.5 rounded-md bg-[#362210] text-[#ffd86b] border border-[#6e4a28]">
+            Server Time (UTC-2)
+          </span>
+        </div>
+      </div>
+
+      <!-- Regional Presets & Standardized UTC Offset Dropdown -->
+      <div class="flex flex-wrap items-center gap-1.5">
+        <button type="button" data-tz-preset="server" class="tz-pill tz-pill-active px-2.5 py-1 rounded-lg border text-xs font-extrabold">
+          Server Time (UTC-2)
+        </button>
+        <button type="button" data-tz-preset="utc" class="tz-pill tz-pill-inactive px-2.5 py-1 rounded-lg border text-xs font-extrabold">
+          UTC (UTC+0)
+        </button>
+        <button type="button" data-tz-preset="us_est" class="tz-pill tz-pill-inactive px-2.5 py-1 rounded-lg border text-xs font-extrabold">
+          US East (EST / UTC-5)
+        </button>
+        <button type="button" data-tz-preset="us_edt" class="tz-pill tz-pill-inactive px-2.5 py-1 rounded-lg border text-xs font-extrabold">
+          US East (EDT / UTC-4)
+        </button>
+        <button type="button" data-tz-preset="tw_hk" class="tz-pill tz-pill-inactive px-2.5 py-1 rounded-lg border text-xs font-extrabold">
+          Taiwan / HK (UTC+8)
+        </button>
+        <button type="button" data-tz-preset="jp_kr" class="tz-pill tz-pill-inactive px-2.5 py-1 rounded-lg border text-xs font-extrabold">
+          Japan / KR (UTC+9)
+        </button>
+
+        <!-- Universal Standardized UTC-12 to UTC+14 Selector -->
+        <div class="flex items-center gap-1.5 ml-0 sm:ml-1 pl-0 sm:pl-2 sm:border-l border-[#6e4a28]">
+          <label for="universalUtcSelect" class="text-[11px] font-bold text-[#e6ccb0] whitespace-nowrap">Universal:</label>
+          <select id="universalUtcSelect" class="px-2 py-1 rounded-lg bg-[#fff8ee] text-[#4a2e16] border border-[#b99770] text-xs font-mono font-extrabold focus:outline-none focus:ring-2 focus:ring-[#f4b732] cursor-pointer">
+            <!-- Populated UTC-12 to UTC+14 via JS -->
+          </select>
+        </div>
+      </div>
+
+    </div>
+  </nav>
+
+  <!-- Main XClash Golden-Peach Header Banner -->
+  <header class="xclash-banner relative z-30">
+    <div class="max-w-[1440px] mx-auto px-4 sm:px-6 py-3.5 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
+      
+      <!-- Brand Emblem & Title -->
+      <div class="flex items-center gap-3">
+        <div class="w-11 h-11 rounded-2xl bg-gradient-to-b from-[#ffe27a] to-[#e59424] p-0.5 border-2 border-[#8c4a0e] shadow-md shrink-0">
+          <div class="w-full h-full rounded-[13px] bg-gradient-to-br from-[#8c3fd1] to-[#5a2296] flex items-center justify-center border border-[#ffd86b]/60">
+            <svg class="w-6 h-6 text-[#ffe47a] drop-shadow" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L14.9 8.1L21.6 9L16.7 13.7L17.9 20.4L12 17.2L6.1 20.4L7.3 13.7L2.4 9L9.1 8.1L12 2Z" />
+            </svg>
+          </div>
+        </div>
+
+        <div>
+          <div class="flex flex-wrap items-center gap-2">
+            <h1 class="xclash-title text-xl sm:text-2xl font-bold tracking-wide">XClash Arms Race</h1>
+            <span id="headerCycleBadge" class="px-2.5 py-0.5 text-xs font-extrabold rounded-full bg-[#fff7e6] text-[#7a4414] border-2 border-[#c97e2c] shadow-sm">
+              00:00 Server Time (UTC-2)
+            </span>
+          </div>
+        </div>
+      </div>
+
+      <!-- Right Action Controls: Edit Lock Toggle (Default ON), Export Image, Clear All -->
+      <div class="flex flex-wrap items-center gap-2.5">
+        <!-- Edit Lock Button (Default ON = Locked) -->
+        <button id="editLockBtn" type="button" aria-pressed="true" title="Toggle Edit Lock to enable or disable timetable changes" class="xclash-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-b from-[#ffd54f] to-[#f59e0b] hover:brightness-105 text-[#4a2504] border-2 border-[#9a5808] shadow-[0_3px_0_#9a5808]">
+          <span id="editLockIcon" class="flex items-center justify-center">
+            <!-- Lock icon populated via JS -->
+          </span>
+          <span id="editLockLabel">Read Only</span>
+        </button>
+
+        <!-- Clear All Button (Disabled while Edit Lock is ON) -->
+        <button id="clearAllBtn" type="button" disabled title="Unlock editing first to clear all slots" class="xclash-btn inline-flex items-center gap-1.5 px-4 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-b from-[#fffaf0] to-[#ebd6b7] hover:brightness-105 text-[#6b4623] border-2 border-[#b58b5c] shadow-[0_3px_0_#9c7346]">
+          <svg class="w-4 h-4 text-[#a84332]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+          </svg>
+          <span>Clear All</span>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace -->
+  <main class="flex-1 max-w-[1440px] w-full mx-auto px-4 sm:px-6 py-5 flex flex-col gap-5">
+
+    <!-- Top Arms Race Event Palette & Highlight Filter Bar -->
+    <section class="bg-[#fff8ee] border-2 border-[#d4b48c] rounded-2xl p-4 shadow-[0_4px_12px_rgba(120,82,42,0.1)]">
+      <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 mb-3">
+        <div class="flex flex-wrap items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-lg bg-[#ead5b9] text-[#4a2e16] text-xs font-extrabold uppercase tracking-wider border border-[#d4b48c]">
+            Arms Race Events
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs font-bold text-[#7d5b38]">
+          <button id="clearFilterBtn" type="button" class="px-2.5 py-0.5 rounded-lg bg-[#e8cfa9] text-[#4a2e16] hover:bg-[#dec092] border border-[#bfa07a] font-extrabold hidden">
+            Show All
+          </button>
+        </div>
+      </div>
+
+      <!-- 5 Unified Light Pastel Event Tiles -->
+      <div id="paletteContainer" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
+        <!-- Populated via JS -->
+      </div>
+    </section>
+
+    <!-- Weekly Timetable Grid Container (Target for Export Image) -->
+    <section id="timetableExportContainer" class="bg-[#fff8ee] border-2 border-[#cfa97e] rounded-2xl shadow-[0_6px_20px_rgba(115,76,34,0.14)] overflow-hidden flex flex-col">
+      
+      <!-- Export-Only Title Banner (Shown only inside PNG capture) -->
+      <div id="exportBanner" class="hidden items-center justify-between px-5 py-3.5 xclash-banner">
+        <div class="flex items-center gap-2.5">
+          <div class="w-8 h-8 rounded-xl bg-gradient-to-b from-[#ffe27a] to-[#e59424] border-2 border-[#8c4a0e] flex items-center justify-center text-[#7a3b08]">
+            <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M12 2L14.9 8.1L21.6 9L16.7 13.7L17.9 20.4L12 17.2L6.1 20.4L7.3 13.7L2.4 9L9.1 8.1L12 2Z" />
+            </svg>
+          </div>
+          <span class="xclash-title text-lg font-bold tracking-wide">XClash Arms Race — Weekly Timetable</span>
+        </div>
+        <span id="exportTzBadge" class="text-xs font-mono font-extrabold px-2.5 py-1 rounded-full bg-[#fff7e6] text-[#7a4414] border-2 border-[#c97e2c]">
+          Server Time (UTC-2) • 4-Hour Cycle
+        </span>
+      </div>
+
+      <!-- Horizontal Scroll Wrapper for Mobile/Tablet -->
+      <div class="overflow-x-auto timetable-scroll">
+        <div class="min-w-[1140px]">
+          <!-- Column Headers: Time Column + Day 1 to Day 7 -->
+          <div id="gridHeader" class="grid grid-cols-[155px_repeat(7,minmax(0,1fr))] border-b-2 border-[#d4b48c] bg-gradient-to-b from-[#f3dfc2] to-[#ead5b9]">
+            <!-- Populated via JS -->
+          </div>
+
+          <!-- 6 Time Rows x (Time Column + 7 Days) -->
+          <div id="timetableGrid" class="divide-y divide-[#e3cbb0]">
+            <!-- Populated via JS -->
+          </div>
+        </div>
+      </div>
+
+      <!-- Footer Summary & Event Counts -->
+      <div class="bg-[#ead5b9] border-t-2 border-[#d4b48c] px-4 py-3 flex flex-wrap items-center justify-between gap-3 text-xs font-bold text-[#4a2e16]">
+        <div id="weeklyCounts" class="flex flex-wrap items-center gap-2 font-mono text-[11px]">
+          <!-- Event count badges populated via JS -->
+        </div>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Toast Notification Container (No alert/confirm used) -->
+  <div id="toastContainer" class="fixed bottom-5 right-5 z-50 flex flex-col gap-2 pointer-events-none"></div>
+
+  <script>
+    /**
+     * XClash Arms Race — Weekly Timetable Application
+     * Complete self-contained script with unified pastel cards, timezone conversion,
+     * default-ON Edit Lock, Day 1 Soldiers Training preset, and PNG export.
+     */
+
+    // 1. Unified Light Pastel Theme for All 5 Arms Race Types
+    const RACE_TYPES = {
+      city: {
+        id: 'city',
+        name: 'City Construction',
+        shortName: 'City',
+        cardBg: 'bg-[#e0e7ff]',
+        border: 'border-[#a5b4fc] hover:border-[#818cf8]',
+        shadow: 'shadow-[0_3px_0_#94a3f8]',
+        text: 'text-[#1e1b4b]',
+        timePill: 'bg-[#4f46e5] text-white border-[#3730a3]',
+        iconBg: 'bg-[#4f46e5] text-white border border-[#3730a3]',
+        badgeBg: 'bg-[#e0e7ff] text-[#1e1b4b] border-[#a5b4fc]',
+        dot: 'bg-[#4f46e5]',
+        svg: `<svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 21h18" />
+                <path d="M5 21V7l2-2V3h2v2h2V3h2v2h2V3h2v2l2 2v14" />
+                <path d="M9 21v-5a3 3 0 0 1 6 0v5" />
+                <path d="M9 10h.01M15 10h.01" stroke-width="2.6" />
+              </svg>`
+      },
+      soldiers: {
+        id: 'soldiers',
+        name: 'Soldiers Training',
+        shortName: 'Soldiers',
+        cardBg: 'bg-[#ffe4e6]',
+        border: 'border-[#fda4af] hover:border-[#fb7185]',
+        shadow: 'shadow-[0_3px_0_#f48a98]',
+        text: 'text-[#881337]',
+        timePill: 'bg-[#e11d48] text-white border-[#9f1239]',
+        iconBg: 'bg-[#e11d48] text-white border border-[#9f1239]',
+        badgeBg: 'bg-[#ffe4e6] text-[#881337] border-[#fda4af]',
+        dot: 'bg-[#e11d48]',
+        svg: `<svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="14.5 17.5 3 6 3 3 6 3 17.5 14.5" />
+                <line x1="13" y1="19" x2="19" y2="13" />
+                <line x1="16" y1="16" x2="20" y2="20" />
+                <line x1="19" y1="21" x2="21" y2="19" />
+                <polyline points="14.5 6.5 18 3 21 3 21 6 17.5 9.5" />
+                <line x1="5" y1="14" x2="9" y2="18" />
+                <line x1="7" y1="17" x2="4" y2="20" />
+                <line x1="3" y1="19" x2="5" y2="21" />
+              </svg>`
+      },
+      tech: {
+        id: 'tech',
+        name: 'Technology Research',
+        shortName: 'Tech',
+        cardBg: 'bg-[#e0f2fe]',
+        border: 'border-[#7dd3fc] hover:border-[#38bdf8]',
+        shadow: 'shadow-[0_3px_0_#67c2ed]',
+        text: 'text-[#0c4a6e]',
+        timePill: 'bg-[#0284c7] text-white border-[#075985]',
+        iconBg: 'bg-[#0284c7] text-white border border-[#075985]',
+        badgeBg: 'bg-[#e0f2fe] text-[#0c4a6e] border-[#7dd3fc]',
+        dot: 'bg-[#0284c7]',
+        svg: `<svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="2.2" fill="currentColor" />
+                <ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(30 12 12)" />
+                <ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(-30 12 12)" />
+                <ellipse cx="12" cy="12" rx="10" ry="4.2" transform="rotate(90 12 12)" />
+              </svg>`
+      },
+      beast: {
+        id: 'beast',
+        name: 'Mystic Beast Training',
+        shortName: 'Beast',
+        cardBg: 'bg-[#f3e8ff]',
+        border: 'border-[#d8b4fe] hover:border-[#c084fc]',
+        shadow: 'shadow-[0_3px_0_#c296f2]',
+        text: 'text-[#4c1d95]',
+        timePill: 'bg-[#7c3aed] text-white border-[#5b21b6]',
+        iconBg: 'bg-[#7c3aed] text-white border border-[#5b21b6]',
+        badgeBg: 'bg-[#f3e8ff] text-[#4c1d95] border-[#d8b4fe]',
+        dot: 'bg-[#7c3aed]',
+        svg: `<svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 13c-2.8 0-5 2.1-5 4.5 0 1.6 1.3 2.5 2.8 2.5.8 0 1.5-.3 2.2-.3s1.4.3 2.2.3c1.5 0 2.8-.9 2.8-2.5 0-2.4-2.2-4.5-5-4.5z" />
+                <ellipse cx="6.2" cy="10.2" rx="1.6" ry="2.3" transform="rotate(-20 6.2 10.2)" />
+                <ellipse cx="10" cy="6.8" rx="1.6" ry="2.4" transform="rotate(-8 10 6.8)" />
+                <ellipse cx="14" cy="6.8" rx="1.6" ry="2.4" transform="rotate(8 14 6.8)" />
+                <ellipse cx="17.8" cy="10.2" rx="1.6" ry="2.3" transform="rotate(20 17.8 10.2)" />
+              </svg>`
+      },
+      hero: {
+        id: 'hero',
+        name: 'Enhance Hero',
+        shortName: 'Hero',
+        cardBg: 'bg-[#d1fae5]',
+        border: 'border-[#6ee7b7] hover:border-[#34d399]',
+        shadow: 'shadow-[0_3px_0_#59cf9f]',
+        text: 'text-[#064e3b]',
+        timePill: 'bg-[#059669] text-white border-[#065f46]',
+        iconBg: 'bg-[#059669] text-white border border-[#065f46]',
+        badgeBg: 'bg-[#d1fae5] text-[#064e3b] border-[#6ee7b7]',
+        dot: 'bg-[#059669]',
+        svg: `<svg class="w-5 h-5 shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.1" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M3 18h18" />
+                <path d="M4 15l-1-9 5.5 4L12 4l3.5 6L21 6l-1 9H4z" />
+                <circle cx="12" cy="12" r="1" fill="currentColor" />
+              </svg>`
+      }
+    };
+
+    const RACE_ORDER = ['city', 'soldiers', 'tech', 'beast', 'hero'];
+
+    // Strictly Day 1 to Day 7 (no weekday labels)
+    const DAYS = [
+      { dayNum: 1, label: 'Day 1' },
+      { dayNum: 2, label: 'Day 2' },
+      { dayNum: 3, label: 'Day 3' },
+      { dayNum: 4, label: 'Day 4' },
+      { dayNum: 5, label: 'Day 5' },
+      { dayNum: 6, label: 'Day 6' },
+      { dayNum: 7, label: 'Day 7' },
+    ];
+
+    // 00:00 Server Time Cycle Only (Server Time = UTC-2)
+    const SERVER_BASE_HOURS = [0, 4, 8, 12, 16, 20];
+    const SERVER_UTC_OFFSET = -2;
+
+    // Regional & Standardized Timezone Presets
+    const TIMEZONE_PRESETS = {
+      server: {
+        id: 'server',
+        label: 'Server Time (UTC-2)',
+        columnHeader: 'Server Time',
+        columnSub: 'UTC-2',
+        utcOffset: -2,
+      },
+      utc: {
+        id: 'utc',
+        label: 'UTC (UTC+0)',
+        columnHeader: 'UTC Time',
+        columnSub: 'UTC+0',
+        utcOffset: 0,
+      },
+      us_est: {
+        id: 'us_est',
+        label: 'US East (EST / UTC-5)',
+        columnHeader: 'US East (EST)',
+        columnSub: 'UTC-5',
+        utcOffset: -5,
+      },
+      us_edt: {
+        id: 'us_edt',
+        label: 'US East (EDT / UTC-4)',
+        columnHeader: 'US East (EDT)',
+        columnSub: 'UTC-4',
+        utcOffset: -4,
+      },
+      tw_hk: {
+        id: 'tw_hk',
+        label: 'Taiwan / HK (UTC+8)',
+        columnHeader: 'Taiwan / HK',
+        columnSub: 'UTC+8',
+        utcOffset: 8,
+      },
+      jp_kr: {
+        id: 'jp_kr',
+        label: 'Japan / KR (UTC+9)',
+        columnHeader: 'Japan / KR',
+        columnSub: 'UTC+9',
+        utcOffset: 9,
+      },
+    };
+
+    const STORAGE_KEY = 'xclash_arms_race_timetable_v5';
+
+    // Application State (Edit Lock is DEFAULT ON)
+    let state = {
+      grid: [],               // 7 days x 6 slots -> raceId string or null
+      isLocked: true,         // DEFAULT ON: prevents accidental edits until switched off
+      filterType: null,       // Optional highlight filter
+      dragPayload: null,      // Active drag metadata
+      utcOffset: -2,          // Selected timezone offset (-12 to +14)
+      activePreset: 'server', // Preset key or 'custom'
+    };
+
+    /**
+     * Format UTC offset integer into standardized label (e.g., "UTC+8", "UTC-2", "UTC+0")
+     */
+    function formatUtcOffset(offset) {
+      return offset >= 0 ? `UTC+${offset}` : `UTC${offset}`;
+    }
+
+    /**
+     * Convert a Server Time slot index (0..5) into the active timezone
+     */
+    function getConvertedSlotTime(slotIdx) {
+      const serverHour = SERVER_BASE_HOURS[slotIdx];
+      const deltaHours = state.utcOffset - SERVER_UTC_OFFSET;
+      const rawTargetHour = serverHour + deltaHours;
+
+      let dayShift = 0;
+      let normalizedHour = rawTargetHour;
+
+      if (rawTargetHour < 0) {
+        dayShift = -1;
+        normalizedHour = rawTargetHour + 24;
+      } else if (rawTargetHour >= 24) {
+        dayShift = 1;
+        normalizedHour = rawTargetHour - 24;
+      }
+
+      const hh = String(normalizedHour).padStart(2, '0');
+      const shiftBadge = dayShift === -1 ? '-1d' : dayShift === 1 ? '+1d' : '';
+
+      return {
+        timeStr: `${hh}:00:00`,
+        shortTime: `${hh}:00`,
+        dayShift,
+        shiftBadge,
+      };
+    }
+
+    /**
+     * Retrieve display metadata for the active timezone
+     */
+    function getActiveTimezoneMeta() {
+      if (state.activePreset && TIMEZONE_PRESETS[state.activePreset]) {
+        return TIMEZONE_PRESETS[state.activePreset];
+      }
+      const utcLabel = formatUtcOffset(state.utcOffset);
+      return {
+        id: 'custom',
+        label: `Standard (${utcLabel})`,
+        columnHeader: 'Local Time',
+        columnSub: utcLabel,
+        utcOffset: state.utcOffset,
+      };
+    }
+
+    /**
+     * Initial Schedule: Day 1 (all 6 slots) filled with Soldiers Training; Days 2–7 empty
+     */
+    function createInitialGrid() {
+      const grid = Array.from({ length: 7 }, () => Array(6).fill(null));
+      grid[0] = ['city', 'soldiers', 'hero', 'tech', 'beast', 'hero'];
+      grid[1] = ['soldiers', 'tech', 'city', 'beast', 'hero', 'city'];
+      grid[2] = ['beast', 'hero', 'tech', 'city', 'soldiers', 'tech'];
+      grid[3] = ['city', 'soldiers', 'hero', 'tech', 'beast', 'hero'];
+      grid[4] = ['tech', 'beast', 'soldiers', 'hero', 'city', 'soldiers'];
+      grid[5] = ['soldiers', 'tech', 'city', 'beast', 'hero', 'city'];
+      grid[6] = ['beast', 'hero', 'tech', 'city', 'soldiers', 'tech'];
+      return grid;
+    }
+
+    /**
+     * Empty 7x6 Schedule (for Clear All)
+     */
+    function createEmptyGrid() {
+      return Array.from({ length: 7 }, () => Array(6).fill(null));
+    }
+
+    /**
+     * Load saved schedule and timezone from localStorage (Edit Lock always starts ON)
+     */
+    function loadState() {
+      try {
+        const raw = localStorage.getItem(STORAGE_KEY);
+        if (raw) {
+          const parsed = JSON.parse(raw);
+          if (
+            parsed &&
+            Array.isArray(parsed.grid) &&
+            parsed.grid.length === 7 &&
+            parsed.grid.every(
+              (row) =>
+                Array.isArray(row) &&
+                row.length === 6 &&
+                row.every((cell) => cell === null || Boolean(RACE_TYPES[cell]))
+            )
+          ) {
+            state.grid = parsed.grid;
+            if (typeof parsed.utcOffset === 'number' && parsed.utcOffset >= -12 && parsed.utcOffset <= 14) {
+              state.utcOffset = parsed.utcOffset;
+            }
+            if (typeof parsed.activePreset === 'string') {
+              state.activePreset = parsed.activePreset;
+            }
+            state.isLocked = true;
+            return;
+          }
+        }
+      } catch (err) {
+        console.warn('Could not load saved schedule, using default.', err);
+      }
+      state.grid = createInitialGrid();
+      state.utcOffset = -2;
+      state.activePreset = 'server';
+      state.isLocked = true;
+    }
+
+    /**
+     * Persist grid and timezone preferences to localStorage
+     */
+    function saveState() {
+      try {
+        localStorage.setItem(
+          STORAGE_KEY,
+          JSON.stringify({
+            grid: state.grid,
+            utcOffset: state.utcOffset,
+            activePreset: state.activePreset,
+          })
+        );
+      } catch (err) {
+        console.warn('Failed to save to localStorage:', err);
+      }
+    }
+
+    /**
+     * Show non-blocking floating toast message
+     */
+    function showToast(message, type = 'info') {
+      const container = document.getElementById('toastContainer');
+      if (!container) return;
+
+      const toast = document.createElement('div');
+      const colors =
+        type === 'success'
+          ? 'bg-[#e9fbe5] border-[#43a822] text-[#1c590c]'
+          : type === 'warning'
+          ? 'bg-[#fff4db] border-[#d98a1e] text-[#784307]'
+          : 'bg-[#fff9f0] border-[#b88b58] text-[#4a2e16]';
+
+      toast.className = `pointer-events-auto px-4 py-2.5 rounded-xl border-2 shadow-lg text-xs font-extrabold flex items-center gap-2 transition-all duration-300 translate-y-2 opacity-0 ${colors}`;
+      toast.innerHTML = `<span>${message}</span>`;
+      container.appendChild(toast);
+
+      requestAnimationFrame(() => {
+        toast.classList.remove('translate-y-2', 'opacity-0');
+      });
+
+      setTimeout(() => {
+        toast.classList.add('translate-y-2', 'opacity-0');
+        setTimeout(() => toast.remove(), 300);
+      }, 2400);
+    }
+
+    /**
+     * Reserved no-op slot click handler for future custom actions
+     */
+    function handleSlotClick(dayIdx, slotIdx) {
+      // Slot click handler reserved for future custom actions
+    }
+
+    /**
+     * Sync Edit Lock Button, Toolbar Buttons, Subtitle, and Footer Hints
+     */
+    function syncLockUI() {
+      const lockBtn = document.getElementById('editLockBtn');
+      const lockIcon = document.getElementById('editLockIcon');
+      const lockLabel = document.getElementById('editLockLabel');
+      const clearAllBtn = document.getElementById('clearAllBtn');
+
+      if (state.isLocked) {
+        lockBtn.setAttribute('aria-pressed', 'true');
+        lockBtn.className =
+          'xclash-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-b from-[#ffd54f] to-[#f59e0b] hover:brightness-105 text-[#4a2504] border-2 border-[#9a5808] shadow-[0_3px_0_#9a5808]';
+        lockIcon.innerHTML = `
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 10 0v4" />
+          </svg>
+        `;
+        lockLabel.textContent = 'Read Only';
+        clearAllBtn.disabled = true;
+      } else {
+        lockBtn.setAttribute('aria-pressed', 'false');
+        lockBtn.className =
+          'xclash-btn inline-flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-extrabold bg-gradient-to-b from-[#60a5fa] to-[#2563eb] hover:brightness-105 text-white border-2 border-[#1e3a8a] shadow-[0_3px_0_#1e3a8a]';
+        lockIcon.innerHTML = `
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2" />
+            <path d="M7 11V7a5 5 0 0 1 9.9-1" />
+          </svg>
+        `;
+        lockLabel.textContent = 'Edit Mode';
+        clearAllBtn.disabled = false;
+      }
+    }
+
+    /**
+     * Initialize Timezone Preset Buttons & Universal UTC Dropdown
+     */
+    function initTimezoneControls() {
+      const selectEl = document.getElementById('universalUtcSelect');
+      selectEl.innerHTML = '';
+
+      for (let offset = -12; offset <= 14; offset++) {
+        const opt = document.createElement('option');
+        opt.value = String(offset);
+        const label = formatUtcOffset(offset);
+        opt.textContent = offset === -2 ? `${label} (Server)` : label;
+        selectEl.appendChild(opt);
+      }
+
+      document.querySelectorAll('[data-tz-preset]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+          const presetKey = btn.dataset.tzPreset;
+          const preset = TIMEZONE_PRESETS[presetKey];
+          if (!preset) return;
+
+          state.activePreset = presetKey;
+          state.utcOffset = preset.utcOffset;
+          saveState();
+          syncTimezoneNavUI();
+          renderTimetable();
+        });
+      });
+
+      selectEl.addEventListener('change', (e) => {
+        const chosenOffset = parseInt(e.target.value, 10);
+        if (Number.isNaN(chosenOffset)) return;
+
+        const matchedPreset = Object.values(TIMEZONE_PRESETS).find((p) => p.utcOffset === chosenOffset);
+        state.utcOffset = chosenOffset;
+        state.activePreset = matchedPreset ? matchedPreset.id : 'custom';
+
+        saveState();
+        syncTimezoneNavUI();
+        renderTimetable();
+      });
+
+      syncTimezoneNavUI();
+    }
+
+    /**
+     * Sync Active Timezone Pills, Select Value, and Header/Export Badges
+     */
+    function syncTimezoneNavUI() {
+      const meta = getActiveTimezoneMeta();
+      const selectEl = document.getElementById('universalUtcSelect');
+      selectEl.value = String(state.utcOffset);
+
+      document.querySelectorAll('[data-tz-preset]').forEach((btn) => {
+        const isActive = btn.dataset.tzPreset === state.activePreset;
+        btn.classList.toggle('tz-pill-active', isActive);
+        btn.classList.toggle('tz-pill-inactive', !isActive);
+      });
+
+      document.getElementById('activeTzSummary').textContent = meta.label;
+      document.getElementById('headerCycleBadge').textContent =
+        state.utcOffset === -2
+          ? '00:00 Server Time (UTC-2)'
+          : `00:00 Server = ${getConvertedSlotTime(0).shortTime} ${meta.columnSub}`;
+      document.getElementById('exportTzBadge').textContent = `${meta.label} • 4-Hour Cycle`;
+    }
+
+    /**
+     * Render the 5 Unified Light Pastel Event Palette Tiles
+     */
+    function renderPalette() {
+      const container = document.getElementById('paletteContainer');
+      const clearBtn = document.getElementById('clearFilterBtn');
+      clearBtn.classList.toggle('hidden', !state.filterType);
+
+      container.innerHTML = '';
+
+      RACE_ORDER.forEach((raceId) => {
+        const race = RACE_TYPES[raceId];
+        const isFiltered = state.filterType === raceId;
+        const canDrag = !state.isLocked;
+
+        const tile = document.createElement('div');
+        tile.draggable = canDrag;
+        tile.dataset.raceId = raceId;
+        tile.className = `group relative flex items-center justify-between gap-2.5 p-2.5 rounded-xl border-2 select-none transition-all duration-150 ${race.cardBg} ${race.border} ${race.shadow} ${
+          canDrag ? 'cursor-grab active:cursor-grabbing' : 'cursor-default opacity-90'
+        } ${isFiltered ? 'ring-2 ring-[#d9821e] scale-[1.02]' : ''}`;
+
+        tile.innerHTML = `
+          <div class="flex items-center gap-2.5 min-w-0">
+            <div class="w-9 h-9 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${race.iconBg}">
+              ${race.svg}
+            </div>
+            <div class="min-w-0">
+              <div class="text-xs font-extrabold ${race.text} truncate">${race.name}</div>
+              <div class="text-[11px] font-bold opacity-80 ${race.text}">
+                ${canDrag ? 'Drag to assign' : 'Locked'}
+              </div>
+            </div>
+          </div>
+          <button type="button" data-filter-id="${raceId}" title="Highlight only ${race.name} on timetable" class="filter-toggle-btn p-1.5 rounded-lg ${race.text} hover:bg-black/5 transition-colors shrink-0">
+            <svg class="w-4 h-4 ${isFiltered ? 'text-amber-600' : ''}" viewBox="0 0 24 24" fill="${isFiltered ? 'currentColor' : 'none'}" stroke="currentColor" stroke-width="2.2">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M3 4a1 1 0 011-1h16a1 1 0 011 1v2.586a1 1 0 01-.293.707l-6.414 6.414a1 1 0 00-.293.707V17l-4 4v-6.586a1 1 0 00-.293-.707L3.293 7.293A1 1 0 013 6.586V4z" />
+            </svg>
+          </button>
+        `;
+
+        // Drag start from palette (only when unlocked)
+        tile.addEventListener('dragstart', (e) => {
+          if (state.isLocked) {
+            e.preventDefault();
+            return;
+          }
+          state.dragPayload = { source: 'palette', raceId };
+          e.dataTransfer.effectAllowed = 'copy';
+          e.dataTransfer.setData('text/plain', JSON.stringify(state.dragPayload));
+          tile.classList.add('opacity-60', 'scale-95');
+        });
+
+        tile.addEventListener('dragend', () => {
+          tile.classList.remove('opacity-60', 'scale-95');
+          state.dragPayload = null;
+        });
+
+        // Filter highlight button (always usable even when locked)
+        const filterBtn = tile.querySelector('.filter-toggle-btn');
+        filterBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          state.filterType = state.filterType === raceId ? null : raceId;
+          renderPalette();
+          renderTimetable();
+        });
+
+        container.appendChild(tile);
+      });
+    }
+
+    /**
+     * Render the Time Column + Day 1–7 Headers and 6x7 Weekly Timetable Matrix
+     */
+    function renderTimetable() {
+      const headerEl = document.getElementById('gridHeader');
+      const gridEl = document.getElementById('timetableGrid');
+      const tzMeta = getActiveTimezoneMeta();
+      const canEdit = !state.isLocked;
+
+      // Render Timezone Column Header + Day 1 - Day 7 Headers
+      headerEl.innerHTML = `
+        <div class="px-3 py-3 text-center border-r border-[#d4b48c] flex flex-col items-center justify-center bg-[#ead5b9]">
+          <div class="flex items-center justify-center gap-1.5">
+            <svg class="w-4 h-4 text-[#8c5a2b]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+              <circle cx="12" cy="12" r="10" />
+              <polyline points="12 6 12 12 16 14" />
+            </svg>
+            <span class="text-xs font-extrabold tracking-tight text-[#4a2e16]">${tzMeta.columnHeader}</span>
+          </div>
+          <span class="text-[10px] font-mono font-bold text-[#7d5228] mt-0.5">${tzMeta.columnSub}</span>
+        </div>
+        ${DAYS.map(
+          (day) => `
+            <div class="px-3 py-3 text-center border-r last:border-r-0 border-[#d4b48c]">
+              <span class="text-sm font-extrabold tracking-tight text-[#4a2e16]">${day.label}</span>
+            </div>
+          `
+        ).join('')}
+      `;
+
+      // Render 6 Time Rows across Time Column + 7 Days
+      gridEl.innerHTML = '';
+      const counts = { city: 0, soldiers: 0, tech: 0, beast: 0, hero: 0 };
+
+      for (let sIdx = 0; sIdx < 6; sIdx++) {
+        const slotTime = getConvertedSlotTime(sIdx);
+        const rowEl = document.createElement('div');
+        rowEl.className = 'grid grid-cols-[155px_repeat(7,minmax(0,1fr))] divide-x divide-[#e3cbb0]';
+
+        // Left Sand-Tan Time Column Cell
+        const timeCell = document.createElement('div');
+        timeCell.className = 'p-2.5 bg-[#ead5b9]/65 flex flex-col items-center justify-center gap-1';
+        timeCell.innerHTML = `
+          <div class="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[#fff8ee] border border-[#d4b48c] shadow-sm">
+            <span class="w-2 h-2 rounded-full bg-[#e59424]"></span>
+            <span class="font-mono text-xs font-extrabold text-[#4a2e16]">${slotTime.timeStr}</span>
+          </div>
+          ${
+            slotTime.shiftBadge
+              ? `<span class="text-[10px] font-mono font-extrabold px-1.5 py-0.2 rounded ${
+                  slotTime.dayShift === -1
+                    ? 'bg-[#fde8e8] text-[#9b2c2c] border border-[#f5b7b7]'
+                    : 'bg-[#e6f4ea] text-[#1e6e38] border border-[#a8d8b7]'
+                }">${slotTime.shiftBadge} Server Day</span>`
+              : ''
+          }
+        `;
+        rowEl.appendChild(timeCell);
+
+        // 7 Day Slot Cells
+        for (let dIdx = 0; dIdx < 7; dIdx++) {
+          const raceId = state.grid[dIdx][sIdx];
+
+          const cellWrapper = document.createElement('div');
+          cellWrapper.className = `p-2 bg-[#fff8ee] transition-colors ${canEdit ? 'hover:bg-[#faeedc]' : ''}`;
+
+          const card = document.createElement('div');
+          card.dataset.dayIdx = dIdx;
+          card.dataset.slotIdx = sIdx;
+
+          if (raceId && RACE_TYPES[raceId]) {
+            const race = RACE_TYPES[raceId];
+            counts[raceId] = (counts[raceId] || 0) + 1;
+            const isDimmed = state.filterType && state.filterType !== raceId;
+
+            card.draggable = canEdit;
+            card.className = `slot-card group relative rounded-xl border-2 p-2.5 select-none transition-all duration-150 flex flex-col justify-between gap-2 min-h-[88px] ${race.cardBg} ${race.border} ${race.shadow} ${
+              canEdit ? 'cursor-grab active:cursor-grabbing' : 'cursor-default'
+            } ${isDimmed ? 'opacity-25 scale-[0.98]' : 'opacity-100'}`;
+
+            card.innerHTML = `
+              <!-- Top Row: Formatted Time Pill & Conditional Delete Button -->
+              <div class="flex items-center justify-between gap-1">
+                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md border ${race.timePill}">
+                  <svg class="w-3 h-3 opacity-90" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.3">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  <span class="font-mono text-[11px] font-bold tracking-tight">${slotTime.timeStr}${slotTime.shiftBadge ? ` (${slotTime.shiftBadge})` : ''}</span>
+                </div>
+
+                ${
+                  canEdit
+                    ? `<button type="button" title="Remove event from this slot" class="remove-slot-btn export-hide opacity-0 group-hover:opacity-100 w-5 h-5 rounded-md flex items-center justify-center bg-white/95 text-[#881337] hover:bg-[#e11d48] hover:text-white border border-[#d4b48c] shadow-sm transition-all">
+                        <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6">
+                          <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                        </svg>
+                      </button>`
+                    : ''
+                }
+              </div>
+
+              <!-- Bottom Row: Custom SVG Icon + Event Name -->
+              <div class="flex items-center gap-2">
+                <div class="w-8 h-8 rounded-lg flex items-center justify-center shrink-0 shadow-sm ${race.iconBg}">
+                  ${race.svg}
+                </div>
+                <span class="text-xs font-extrabold leading-snug ${race.text} line-clamp-2">
+                  ${race.name}
+                </span>
+              </div>
+            `;
+
+            if (canEdit) {
+              const removeBtn = card.querySelector('.remove-slot-btn');
+              if (removeBtn) {
+                removeBtn.addEventListener('click', (e) => {
+                  e.stopPropagation();
+                  state.grid[dIdx][sIdx] = null;
+                  saveState();
+                  renderTimetable();
+                });
+              }
+
+              card.addEventListener('dragstart', (e) => {
+                if (state.isLocked) {
+                  e.preventDefault();
+                  return;
+                }
+                state.dragPayload = { source: 'grid', raceId, dayIdx: dIdx, slotIdx: sIdx };
+                e.dataTransfer.effectAllowed = 'move';
+                e.dataTransfer.setData('text/plain', JSON.stringify(state.dragPayload));
+                card.classList.add('opacity-50', 'scale-95');
+              });
+
+              card.addEventListener('dragend', () => {
+                card.classList.remove('opacity-50', 'scale-95');
+                document.querySelectorAll('.drop-target-active').forEach((el) => {
+                  el.classList.remove('drop-target-active', 'ring-2', 'ring-[#e59424]', 'scale-[1.03]');
+                });
+                state.dragPayload = null;
+              });
+            }
+          } else {
+            // Empty Dropzone Slot
+            card.draggable = false;
+            card.className = `slot-card group relative rounded-xl border-2 border-dashed border-[#d4b48c] ${
+              canEdit ? 'hover:border-[#a87e4c] bg-[#f5e7d3]/75' : 'bg-[#f5e7d3]/45'
+            } p-2.5 select-none transition-all duration-150 flex flex-col justify-between gap-2 min-h-[88px]`;
+
+            card.innerHTML = `
+              <div class="flex items-center justify-between gap-1">
+                <div class="inline-flex items-center gap-1 px-2 py-0.5 rounded-md bg-[#ead5b9] border border-[#d1b48e]">
+                  <svg class="w-3 h-3 text-[#7d5b38]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2">
+                    <circle cx="12" cy="12" r="10" />
+                    <polyline points="12 6 12 12 16 14" />
+                  </svg>
+                  <span class="font-mono text-[11px] font-bold tracking-tight text-[#4a2e16]">${slotTime.timeStr}${slotTime.shiftBadge ? ` (${slotTime.shiftBadge})` : ''}</span>
+                </div>
+              </div>
+              <div class="flex items-center justify-center py-1 text-[11px] font-bold text-[#9c7b56] ${
+                canEdit ? 'group-hover:text-[#4a2e16]' : ''
+              } transition-colors">
+                ${canEdit ? 'Drop race here' : 'Empty slot'}
+              </div>
+            `;
+          }
+
+          // Dropzone listeners (only active when Edit Lock is OFF)
+          card.addEventListener('dragover', (e) => {
+            if (state.isLocked) return;
+            e.preventDefault();
+            e.dataTransfer.dropEffect = state.dragPayload?.source === 'palette' ? 'copy' : 'move';
+            card.classList.add('drop-target-active', 'ring-2', 'ring-[#e59424]', 'scale-[1.03]');
+          });
+
+          card.addEventListener('dragleave', () => {
+            card.classList.remove('drop-target-active', 'ring-2', 'ring-[#e59424]', 'scale-[1.03]');
+          });
+
+          card.addEventListener('drop', (e) => {
+            if (state.isLocked) return;
+            e.preventDefault();
+            card.classList.remove('drop-target-active', 'ring-2', 'ring-[#e59424]', 'scale-[1.03]');
+
+            let payload = state.dragPayload;
+            if (!payload) {
+              try {
+                payload = JSON.parse(e.dataTransfer.getData('text/plain'));
+              } catch (_) {}
+            }
+            if (!payload) return;
+
+            if (payload.source === 'palette' && payload.raceId) {
+              state.grid[dIdx][sIdx] = payload.raceId;
+              saveState();
+              renderTimetable();
+              showToast(`Assigned ${RACE_TYPES[payload.raceId].name} to Day ${dIdx + 1} (${slotTime.timeStr})`, 'success');
+            } else if (payload.source === 'grid') {
+              const fromD = payload.dayIdx;
+              const fromS = payload.slotIdx;
+              if (fromD === dIdx && fromS === sIdx) return;
+
+              const temp = state.grid[dIdx][sIdx];
+              state.grid[dIdx][sIdx] = state.grid[fromD][fromS];
+              state.grid[fromD][fromS] = temp;
+
+              saveState();
+              renderTimetable();
+              showToast(`Swapped Day ${fromD + 1} and Day ${dIdx + 1} slots`, 'info');
+            }
+          });
+
+          // Reserved no-op click handler (no modal)
+          card.addEventListener('click', () => {
+            handleSlotClick(dIdx, sIdx);
+          });
+
+          cellWrapper.appendChild(card);
+          rowEl.appendChild(cellWrapper);
+        }
+
+        gridEl.appendChild(rowEl);
+      }
+
+      // Render Weekly Summary Counts
+      const countsEl = document.getElementById('weeklyCounts');
+      countsEl.innerHTML = RACE_ORDER.map((id) => {
+        const r = RACE_TYPES[id];
+        return `
+          <span class="inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-lg border font-extrabold ${r.badgeBg}">
+            <span class="w-2 h-2 rounded-full ${r.dot}"></span>
+            <span>${r.shortName}: <strong>${counts[id]}</strong></span>
+          </span>
+        `;
+      }).join('');
+    }
+
+    /**
+     * Wire up Toolbar & Filter Event Listeners
+     */
+    function initEventListeners() {
+      // Edit Lock Toggle (Default ON)
+      document.getElementById('editLockBtn').addEventListener('click', () => {
+        state.isLocked = !state.isLocked;
+        syncLockUI();
+        renderPalette();
+        renderTimetable();
+        showToast(
+          state.isLocked ? 'Edit Lock turned ON — schedule protected' : 'Edit Lock turned OFF — you can now edit slots',
+          state.isLocked ? 'warning' : 'success'
+        );
+      });
+
+      // Clear Highlight Filter
+      document.getElementById('clearFilterBtn').addEventListener('click', () => {
+        state.filterType = null;
+        renderPalette();
+        renderTimetable();
+      });
+
+      // Clear All Slots (Guarded by Edit Lock)
+      document.getElementById('clearAllBtn').addEventListener('click', () => {
+        if (state.isLocked) {
+          showToast('Turn off Edit Lock before clearing the timetable', 'warning');
+          return;
+        }
+        state.grid = createEmptyGrid();
+        state.filterType = null;
+        saveState();
+        renderPalette();
+        renderTimetable();
+        showToast('Cleared all slots on the timetable', 'info');
+      });
+    }
+
+    // Bootstrap Application Safely on DOMContentLoaded
+    document.addEventListener('DOMContentLoaded', () => {
+      loadState();
+      initTimezoneControls();
+      syncLockUI();
+      renderPalette();
+      renderTimetable();
+      initEventListeners();
+    });
+  </script>
+</body>
+</html>
